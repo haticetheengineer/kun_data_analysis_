@@ -1,13 +1,13 @@
 # Veri Analizi — Çalışma Soruları
 
-> Kapadokya Üniversitesi · Bilgi Güvenliği Teknolojileri Programı  
+> Kapadokya Üniversitesi · Bilişim Güvenliği Teknolojileri Programı  
 > Veri Analizi dersi için hazırlanmış interaktif çalışma modülü.
 
 Bu modül, dönem boyunca işlenen temel veri analizi kavramlarını **75 çoktan seçmeli soru** üzerinden pekiştirmek için hazırlanmıştır. Her sorunun cevabından sonra ayrıntılı bir açıklama gösterilir; öğrenci sadece doğru şıkkı değil, **neden doğru olduğunu** da öğrenir.
 
 ## 🔗 Canlı Erişim
 
-**[→ Quiz'i başlat](https://haticetheengineer.github.io/kun-data-analysis/)**
+**[→ Quiz'i başlat](https://haticetheengineer.github.io/kun_data_analysis_/)**
 
 ## 📚 Kapsanan Konular
 
