@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veri Analizi — Çalışma Soruları</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #171b21;
+    --panel-2: #1e242c;
+    --line: #2a323d;
+    --ink: #e8ecf1;
+    --ink-mute: #8892a0;
+    --ink-dim: #5b6572;
+    --accent: #7dd3a8;
+    --accent-2: #6db894;
+    --wrong: #e07a7a;
+    --wrong-bg: #3a2027;
+    --right-bg: #1f3229;
+    --chip: #232b35;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grid overlay motif — subtle */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(125, 211, 168, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(125, 211, 168, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .subtitle {
+    color: var(--ink-mute);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-label {
+    color: var(--ink-dim);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .stat-value.accent { color: var(--accent); }
+
+  /* Progress bar */
+  .progress-track {
+    height: 3px;
+    background: var(--panel);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Question card */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .q-number {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .q-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .q-topic {
+    padding: 3px 10px;
+    background: var(--chip);
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 22px;
+    line-height: 1.5;
+    font-weight: 450;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--panel-2);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14.5px;
+    color: var(--ink);
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    line-height: 1.45;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #1f272f;
+  }
+
+  .option:disabled {
+    cursor: default;
+  }
+
+  .option-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    background: var(--chip);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .option.correct {
+    background: var(--right-bg);
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+
+  .option.correct .option-letter {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .option.wrong {
+    background: var(--wrong-bg);
+    border-color: var(--wrong);
+    color: var(--ink);
+  }
+
+  .option.wrong .option-letter {
+    background: var(--wrong);
+    color: var(--bg);
+  }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 22px;
+    padding: 20px;
+    background: var(--panel-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.65;
+    display: none;
+  }
+
+  .explanation.show {
+    display: block;
+  }
+
+  .exp-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .btn {
+    padding: 11px 20px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+    color: var(--bg);
+  }
+
+  /* Final screen */
+  .final {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .final-score {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 80px;
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 12px;
+    letter-spacing: -0.03em;
+  }
+
+  .final-total {
+    color: var(--ink-mute);
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .final-percent {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--ink-mute);
+    margin-bottom: 40px;
+  }
+
+  .final-message {
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+
+  .topic-breakdown {
+    display: grid;
+    gap: 8px;
+    max-width: 500px;
+    margin: 32px auto;
+    text-align: left;
+  }
+
+  .topic-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--panel);
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .topic-row-name {
+    color: var(--ink-mute);
+  }
+
+  .topic-row-score {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Start screen */
+  .start {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  .start-hero {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 44px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .start-hero .accent-word {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .start-desc {
+    color: var(--ink-mute);
+    font-size: 15px;
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+
+  .start-meta {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .meta-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 36px;
+    color: var(--accent);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .meta-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .topic-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 32px auto;
+    max-width: 640px;
+  }
+
+  .topic-chip {
+    padding: 6px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--ink-mute);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-big {
+    padding: 16px 36px;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    color: var(--ink-dim);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  @media (max-width: 640px) {
+    .wrap { padding: 20px 14px 60px; }
+    .card { padding: 20px 18px; }
+    h1 { font-size: 22px; }
+    .start-hero { font-size: 32px; }
+    .final-score { font-size: 64px; }
+    .stats { gap: 14px; }
+    .start-meta { gap: 24px; }
+    .q-text { font-size: 15.5px; }
+    .option { font-size: 13.5px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <div class="start">
+      <div class="eyebrow" style="margin-bottom: 20px;">Veri Analizi · Çalışma Modülü</div>
+      <div class="start-hero">
+        Kavramları <span class="accent-word">test edelim</span>
+      </div>
+      <p class="start-desc">
+        Bu çalışma modülü; veri türlerinden train-test split'e kadar dönem boyunca işlenen konuları
+        75 sorulukbir bankada bir araya getirir. Her sorunun cevabından sonra ayrıntılı açıklama gösterilir.
+      </p>
+
+      <div class="start-meta">
+        <div class="meta-item">
+          <div class="meta-num">75</div>
+          <div class="meta-label">Soru</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-num">10</div>
+          <div class="meta-label">Konu Başlığı</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-num">5</div>
+          <div class="meta-label">Şık</div>
+        </div>
+      </div>
+
+      <div class="topic-list">
+        <div class="topic-chip">Veri Türleri</div>
+        <div class="topic-chip">Eksik Veri</div>
+        <div class="topic-chip">Outlier Analizi</div>
+        <div class="topic-chip">Veri Ön İşleme</div>
+        <div class="topic-chip">Z-Score</div>
+        <div class="topic-chip">Normalizasyon</div>
+        <div class="topic-chip">One-Hot Encoding</div>
+        <div class="topic-chip">Label Encoding</div>
+        <div class="topic-chip">Train-Test Split</div>
+      </div>
+
+      <button class="btn btn-primary btn-big" onclick="startQuiz()">Çalışmaya Başla →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen" style="display: none;">
+    <header>
+      <div class="brand">
+        <div class="eyebrow">Veri Analizi</div>
+        <h1>Çalışma Soruları</h1>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Soru</div>
+          <div class="stat-value" id="stat-current">1 / 75</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Doğru</div>
+          <div class="stat-value accent" id="stat-correct">0</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <div class="card" id="q-card">
+      <div class="q-meta">
+        <span class="q-number" id="q-num">01</span>
+        <span class="q-divider"></span>
+        <span class="q-topic" id="q-topic">Veri Türleri</span>
+      </div>
+      <div class="q-text" id="q-text">—</div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation">
+        <span class="exp-label">Açıklama</span>
+        <span id="exp-text"></span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn" id="prev-btn" onclick="prevQ()" disabled>← Önceki</button>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQ()" disabled>Sonraki →</button>
+    </div>
+
+    <footer>
+      Hatice Tekiş · Kapadokya Üniversitesi · Bilgi Güvenliği Teknolojileri
+    </footer>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div id="final-screen" style="display: none;">
+    <div class="final">
+      <div class="eyebrow" style="margin-bottom: 32px;">Tamamlandı</div>
+      <div class="final-score" id="final-score">—</div>
+      <div class="final-total">/ 75 doğru cevap</div>
+      <div class="final-percent" id="final-percent">—</div>
+      <div class="final-message" id="final-message">—</div>
+
+      <div class="topic-breakdown" id="topic-breakdown"></div>
+
+      <button class="btn btn-primary btn-big" onclick="restart()">Tekrar Başla</button>
+    </div>
+    <footer>
+      Hatice Tekiş · Kapadokya Üniversitesi · Bilgi Güvenliği Teknolojileri
+    </footer>
+  </div>
+
+</div>
+
+<script>
+// ============ SORU BANKASI ============
+const QUESTIONS = [
+  // ---- VERİ TÜRLERİ (1-10) ----
+  {t:"Veri Türleri",q:"Aşağıdakilerden hangisi sayısal (numerical) veri türüne örnektir?",o:["Kişinin yaşadığı şehir adı bilgisi","Bir müşterinin aylık toplam geliri","Öğrencinin okuduğu bölüm ismi","Ürünün rengini gösteren etiket","Kişinin medeni durum bilgisi"],a:1,exp:"Sayısal (numerical) veriler ölçülebilen ve üzerinde matematiksel işlem yapılabilen verilerdir. Aylık gelir sürekli bir sayısal veridir. Şehir, bölüm, renk ve medeni durum kategorik verilerdir."},
+  {t:"Veri Türleri",q:"Kategorik (categorical) verinin en temel özelliği aşağıdakilerden hangisidir?",o:["Her zaman ondalıklı sayılar ile ifade edilir","Sonsuz sayıda değer alabilme özelliği vardır","Sınırlı sayıda sınıf/kategori içermektedir","Aritmetik ortalama hesaplamaya uygundur her","Ölçek üzerinde sürekli değer alır her zaman"],a:2,exp:"Kategorik veriler sınırlı sayıda kategori veya sınıftan oluşur (örn: cinsiyet, renk, marka). Sürekli değer almaz, üzerinde aritmetik işlem yapılmaz. Bu nedenle model eğitiminden önce encoding uygulanır."},
+  {t:"Veri Türleri",q:"Ordinal (sıralı) kategorik veriye en uygun örnek hangisidir?",o:["Kan grubu değerleri: A, B, AB, 0 türleri","Eğitim seviyesi: İlkokul, Ortaokul, Lise","Şehir isimleri: Ankara, İzmir, Bursa vb.","Cinsiyet bilgisi: Kadın veya Erkek türü","Meslek grupları: Doktor, Mühendis türleri"],a:1,exp:"Ordinal veri, kategoriler arasında doğal bir sıralama bulunan veridir. Eğitim seviyesi düşükten yükseğe sıralanabilir. Kan grubu, şehir, cinsiyet ve meslek nominal (sırasız) kategorik verilerdir."},
+  {t:"Veri Türleri",q:"Sürekli (continuous) sayısal veri için doğru tanım hangisidir?",o:["Yalnızca tam sayı değerleri alabilen veri","Belirli aralıkta sonsuz değer alabilen veri","Sadece pozitif değerler içeren veriler her","Kategorik gruplara ayrılabilen sayısal veri","Her zaman 0 ile 1 arasında olan veriler her"],a:1,exp:"Sürekli veri, belirli bir aralıkta sonsuz sayıda değer alabilen veridir (örn: boy, ağırlık, sıcaklık). Kesikli (discrete) veriler ise sayılabilir değerler alır (örn: çocuk sayısı, sınıftaki öğrenci sayısı)."},
+  {t:"Veri Türleri",q:"Nominal (sırasız) kategorik veriye örnek aşağıdakilerden hangisidir?",o:["Memnuniyet: Az, Orta, Çok memnun türleri","Yarış sıralaması: 1., 2., 3. dereceler her","Askeri rütbe: Er, Onbaşı, Çavuş türleri","Göz rengi: Mavi, Yeşil, Kahverengi türleri","Beden ölçüsü: Small, Medium, Large türleri"],a:3,exp:"Nominal veri kategoriler arasında sıralama olmayan veridir. Göz rengi arasında doğal sıra yoktur. Diğer seçenekler (memnuniyet, sıralama, rütbe, beden) ordinal verilerdir çünkü doğal bir sıralamaya sahiptirler."},
+  {t:"Veri Türleri",q:"Kesikli (discrete) sayısal veriye en uygun örnek hangisidir?",o:["Bir insanın ölçülen boy uzunluğu değeri","Otomobilin anlık hız değeri km/saat olarak","Bir ailedeki çocukların sayı adedi değeri","Odanın termometreden okunan sıcaklık değeri","Kişinin tartıldığındaki kilo değeri kilogram"],a:2,exp:"Kesikli veri sayılabilir (integer) değerler alır ve ara değerler almaz. Çocuk sayısı 2 veya 3 olabilir, 2.5 olamaz. Boy, hız, sıcaklık ve kilo sürekli verilerdir çünkü aralarında sonsuz değer alabilirler."},
+  {t:"Veri Türleri",q:"Boolean (mantıksal) veri türünün alabileceği değer sayısı kaçtır?",o:["Sadece iki değer: True veya False değeri","Üç değer: True, False ve NULL değeri her","Sonsuz sayıda değer alabilmektedir hep her","Sadece pozitif tam sayı değerleri her hep","On değer: 0 ile 9 arasındaki rakamlar hep"],a:0,exp:"Boolean veri sadece iki değer alır: True/False (Doğru/Yanlış, 1/0). İkili sınıflandırma problemlerinde hedef değişken genellikle boolean tipindedir. NULL bir veri türü değil, eksik değer göstergesidir."},
+  {t:"Veri Türleri",q:"Zaman serisi (time series) verisinin temel özelliği hangisidir?",o:["Verilerin zamana göre sıralı olması gerek","Her zaman kategorik değer taşıması gerekli","Sadece finansal alanda kullanılması gerekir","Eksik değerlere hiç yer verilmemesi gerekli","Yalnızca tam sayılardan oluşabilmesi gerekli"],a:0,exp:"Zaman serisi verileri belirli zaman aralıklarında toplanan ve zaman sırasına göre düzenlenmiş verilerdir (borsa, hava durumu vb.). Sıralama önemlidir ve sayısal veya kategorik olabilir."},
+  {t:"Veri Türleri",q:"Aşağıdakilerden hangisi metin (text) verisi işleme örneğidir?",o:["Bir yaş değerine normalizasyon uygulama","Müşteri yorumlarında sentiment analizi tam","Ürün fiyatının Z-score dönüşümü hesabı hep","Kategorik değere one-hot encoding uygulama","Eksik değerin ortalama ile doldurulması iş"],a:1,exp:"Metin verisi işlemleri arasında sentiment analizi, tokenization, TF-IDF, word embedding gibi teknikler bulunur. Müşteri yorumları metin verisidir. Diğer seçenekler sayısal veya kategorik veri işleme yöntemleridir."},
+  {t:"Veri Türleri",q:"Aşağıdaki veri türlerinden hangisi ölçek olarak en yüksektir?",o:["Nominal ölçek: sırasız kategorik veri hep","Ordinal ölçek: sıralı kategorik veri hep","Aralık (interval) ölçekli veriler her hep","Oran (ratio) ölçekli sayısal veriler her","Boolean ikili değerli mantıksal veri her"],a:3,exp:"Ölçek hiyerarşisi: Nominal < Ordinal < Interval < Ratio. Ratio (oran) ölçek en yüksektir çünkü mutlak bir sıfırı vardır ve tüm matematiksel işlemler yapılabilir (kilo, boy, yaş). Interval'in mutlak sıfırı yoktur (Celsius sıcaklık)."},
+
+  // ---- EKSİK VERİ (11-20) ----
+  {t:"Eksik Veri",q:"Pandas'ta eksik veri genellikle hangi değer ile temsil edilir?",o:["Sıfır (0) sayısal değer olarak temsil","Boş string ('') karakteri ile temsil","NaN (Not a Number) değeri ile temsil","False mantıksal değer olarak temsil","-1 negatif tam sayı değeri ile temsil"],a:2,exp:"Pandas'ta eksik veriler NaN (Not a Number) ile temsil edilir. numpy.nan veya None kullanılabilir. Sıfır ve boş string geçerli değerlerdir, eksik veri olarak kabul edilmezler. isnull() veya isna() ile tespit edilir."},
+  {t:"Eksik Veri",q:"MCAR (Missing Completely At Random) ne anlama gelir?",o:["Eksiklik değişkene bağlıdır her zaman hep","Eksik veri hiç var olmayan durum ifadesi","Eksiklik tamamen rastgele meydana gelmiştir","Eksik veriler kasıtlı olarak gizlenmektedir","Sadece sayısal verilerde eksik olan durum"],a:2,exp:"MCAR (Missing Completely At Random): Eksiklik tamamen rastgele oluşmuştur ve hiçbir değişkene bağlı değildir. En ideal eksik veri türüdür çünkü analiz sapması oluşturmaz. MAR (Missing At Random) ve MNAR diğer türlerdir."},
+  {t:"Eksik Veri",q:"Sayısal veride eksik değerleri doldurmak için uygun yöntem hangisidir?",o:["Mod (en sık tekrar eden) değer atama","Ortalama (mean) veya medyan değer atama","One-hot encoding tekniği uygulama işlemi","Verinin tümünü silmek en iyi seçenektir","Label encoding ile dönüştürme yapılmalı"],a:1,exp:"Sayısal verilerde eksik değerler ortalama (mean) veya medyan (median) ile doldurulur. Outlier varsa medyan daha güvenlidir. Mod kategorik verilerde kullanılır. One-hot ve label encoding kategorik veri dönüşüm yöntemleridir."},
+  {t:"Eksik Veri",q:"Kategorik veride eksik değerleri doldurmak için tercih edilen yöntem?",o:["Ortalama (mean) değeriyle doldurma işlemi","Medyan (median) değeriyle doldurma işlemi","Mod (en çok tekrar) değeriyle doldurma","Standart sapma değeriyle doldurma işlemi","Varyans hesaplayarak doldurma yöntemi hep"],a:2,exp:"Kategorik verilerde ortalama veya medyan hesaplanamaz. Bu nedenle en sık tekrar eden değer olan mod (mode) kullanılır. Alternatif olarak 'Bilinmiyor' gibi yeni bir kategori de eklenebilir."},
+  {t:"Eksik Veri",q:"Eksik veri oranı %70'ten fazla olan bir sütun için en uygun strateji?",o:["Ortalama değer ile doldurma tercih edilir","Sütunu tamamen veri setinden silmek gerek","Medyan değer ile doldurma tercih edilir","Mod değer ile doldurma tercih edilir hep","KNN algoritması ile doldurma tercih edilir"],a:1,exp:"Bir sütundaki eksik veri oranı çok yüksekse (genelde %50-70 üzeri), o sütunu doldurmak sağlıklı olmaz ve modele gürültü ekler. Bu durumda sütunun silinmesi (drop) tercih edilir. Az eksiklikte imputation daha uygundur."},
+  {t:"Eksik Veri",q:"Pandas'ta eksik değerleri silmek için hangi fonksiyon kullanılır?",o:["df.fillna(0) fonksiyonu kullanılır her hep","df.dropna() fonksiyonu tercih edilmektedir","df.replace() fonksiyonu tercih edilmektedir","df.isnull() fonksiyonu tercih edilmektedir","df.notna() fonksiyonu tercih edilmektedir"],a:1,exp:"dropna() eksik değer içeren satır veya sütunları siler. fillna() ise eksik değerleri belirtilen bir değerle doldurur. isnull() eksik değerleri tespit eder, silme işlemi yapmaz. axis parametresi ile satır/sütun seçilir."},
+  {t:"Eksik Veri",q:"Forward fill (ffill) yönteminin çalışma prensibi nedir aşağıda?",o:["Eksik değeri bir önceki değer ile doldurur","Eksik değeri bir sonraki değer ile doldurur","Eksik değeri ortalama değer ile doldurulur","Eksik değeri sıfır değeri ile doldurulur","Eksik değeri medyan değer ile doldurulur"],a:0,exp:"Forward fill (ffill), eksik değerleri kendisinden önceki geçerli değerle doldurur. Backward fill (bfill) ise sonraki değerle doldurur. Özellikle zaman serisi verilerinde ardışıklık önemli olduğunda tercih edilir."},
+  {t:"Eksik Veri",q:"KNN Imputer algoritmasının eksik veri doldurma mantığı nedir?",o:["Verinin ortalamasıyla doldurma yapılır her","En yakın k komşunun değerini kullanır hep","Medyan değeri ile doldurma yapılır her hep","Rastgele bir değer atanarak doldurulur her","Sıfır sabit değer ile doldurulur her zaman"],a:1,exp:"KNN Imputer, eksik değeri olan kaydın diğer özelliklerine bakarak en benzer k komşuyu bulur ve o komşuların değerlerinin ortalamasını (veya modunu) kullanır. Sklearn'de KNNImputer sınıfı ile kullanılır."},
+  {t:"Eksik Veri",q:"MAR (Missing At Random) eksik veri türü ne anlama gelmektedir?",o:["Eksiklik gözlemlenen diğer değişkene bağlı","Eksiklik tamamen rastgele meydana gelmiştir","Eksiklik eksik değerin kendisine bağlıdır","Eksik veri hiçbir zaman oluşmayan durumdur","Eksik veriler kasıtlı olarak yaratılmışlar"],a:0,exp:"MAR (Missing At Random): Eksiklik gözlemlenen diğer değişkenlere bağlıdır ancak eksik değerin kendisine bağlı değildir. Örneğin, erkeklerin daha az gelir bildirmesi. MCAR tamamen rastgele, MNAR ise eksikliğin kendine bağlı olduğu durumdur."},
+  {t:"Eksik Veri",q:"Eksik veri analizinde ilk yapılması gereken adım nedir aşağıda?",o:["Doğrudan ortalama ile doldurmaya başlamak","Eksik veri oranı ve dağılımını incelemek","Tüm eksik satırları hemen silme yapmak hep","Modeli hemen eğitmeye başlamak gereklidir","One-hot encoding hemen uygulanmalıdır her"],a:1,exp:"Eksik veri analizinde ilk adım, hangi sütunlarda ne oranda eksik veri olduğunu tespit etmek ve dağılımını (MCAR/MAR/MNAR) anlamaktır. df.isnull().sum() ve görselleştirme (missingno kütüphanesi) yaygın kullanılır. Ardından strateji belirlenir."},
+
+  // ---- OUTLIER (21-30) ----
+  {t:"Outlier Analizi",q:"Outlier (aykırı değer) genel olarak neyi ifade etmektedir?",o:["Veri setinde sık tekrar eden değer türü","Veri setinin diğerlerinden çok farklı değer","Veri setinin ortalama değerine yakın olan","Veri setinin medyanına eşit olan değer hep","Veri setindeki eksik olan değerler her zaman"],a:1,exp:"Outlier (aykırı değer), veri setindeki diğer gözlemlerden önemli ölçüde farklılık gösteren değerlerdir. Ölçüm hatası, veri girişi hatası veya nadir gerçek olaylardan kaynaklanabilir. Modelin performansını olumsuz etkileyebilir."},
+  {t:"Outlier Analizi",q:"IQR (Interquartile Range) hesaplama formülü hangisidir?",o:["IQR = Q3 - Q1 çeyrekler açıklığı formülü","IQR = Q1 + Q3 toplamı alınarak hesaplanır","IQR = Q2 - Q1 farkı alınarak hesaplanır","IQR = Q3 + Q2 toplamı alınarak hesaplanır","IQR = Maks - Min değer farkı alınır her"],a:0,exp:"IQR (Interquartile Range - Çeyrekler Arası Açıklık) = Q3 - Q1'dir. Q1 %25'lik dilim (birinci çeyrek), Q3 %75'lik dilim (üçüncü çeyrek). Verinin orta %50'sinin yayılımını gösterir. Outlier tespiti için sık kullanılır."},
+  {t:"Outlier Analizi",q:"IQR yöntemine göre alt outlier sınırı nasıl hesaplanmaktadır?",o:["Alt sınır = Q1 - 1.5 * IQR formülü ile","Alt sınır = Q1 + 1.5 * IQR formülü ile hep","Alt sınır = Q3 - 1.5 * IQR formülü ile hep","Alt sınır = Q3 + 1.5 * IQR formülü ile hep","Alt sınır = Ortalama - 3 sapma formülü ile"],a:0,exp:"IQR yönteminde: Alt sınır = Q1 - 1.5 * IQR, Üst sınır = Q3 + 1.5 * IQR. Bu sınırların dışında kalan değerler outlier olarak kabul edilir. 1.5 katsayısı Tukey tarafından önerilen standart değerdir. 3 katsayısı 'extreme outlier' için kullanılır."},
+  {t:"Outlier Analizi",q:"IQR yöntemine göre üst outlier sınırı nasıl hesaplanır aşağıda?",o:["Üst sınır = Q1 - 1.5 * IQR formülüyle hep","Üst sınır = Q1 + 1.5 * IQR formülüyle hep","Üst sınır = Q3 + 1.5 * IQR formülüyle hep","Üst sınır = Q3 - 1.5 * IQR formülüyle hep","Üst sınır = Q2 + 3 * IQR formülüyle hep"],a:2,exp:"Üst outlier sınırı Q3 + 1.5 * IQR formülüyle hesaplanır. Bu sınırın üzerindeki değerler aykırı olarak kabul edilir. Tukey'nin kutu grafiği (boxplot) yöntemi bu sınırlara dayanır. Whisker (bıyık) uzunluğunu belirler."},
+  {t:"Outlier Analizi",q:"Z-score yöntemine göre bir değer kaç sapmadan büyükse outlier sayılır?",o:["|Z| > 1 olan değerler outlier sayılır hep","|Z| > 2 olan değerler outlier sayılır hep","|Z| > 3 olan değerler outlier sayılır hep","|Z| > 5 olan değerler outlier sayılır hep","|Z| > 10 olan değerler outlier sayılır hep"],a:2,exp:"Z-score yönteminde genellikle |Z| > 3 olan değerler outlier kabul edilir. Bu, verinin ortalamadan 3 standart sapmadan daha uzakta olduğu anlamına gelir. Normal dağılımda verinin ~%99.7'si ±3 sapma içindedir (68-95-99.7 kuralı)."},
+  {t:"Outlier Analizi",q:"Aykırı değerleri görselleştirmek için en yaygın kullanılan grafik?",o:["Pie chart (pasta grafiği) tercih edilmekte","Box plot (kutu grafiği) tercih edilmekte","Line plot (çizgi grafiği) tercih edilmekte","Bar plot (sütun grafiği) tercih edilmekte","Area plot (alan grafiği) tercih edilmekte"],a:1,exp:"Box plot (kutu grafiği), Q1, Q2 (medyan), Q3 çeyreklerini ve outlier'ları görsel olarak sunar. Kutunun bıyıklarının (whisker) dışında kalan noktalar outlier'dır. Dağılımı ve aykırı değerleri aynı anda görmek için idealdir."},
+  {t:"Outlier Analizi",q:"Outlier tespitinde kullanılan istatistiksel olmayan yöntem hangisidir?",o:["Z-score standartlaştırma yöntemi her zaman","Isolation Forest algoritma yöntemi her zaman","IQR çeyrekler açıklığı yöntemi her zaman hep","Modified Z-score MAD yöntemi her zaman hep","Grubbs testi normal dağılım testi her zaman"],a:1,exp:"Isolation Forest makine öğrenmesi tabanlı bir outlier tespit algoritmasıdır. Aykırı değerlerin veri setinde daha az sayıda olması ve daha kolay 'izole' edilebilmesi mantığına dayanır. Z-score, IQR, MAD ve Grubbs istatistiksel yöntemlerdir."},
+  {t:"Outlier Analizi",q:"Outlier ile başa çıkmak için hangi yaklaşım en uygundur aşağıda?",o:["Her zaman veri setinden silmek doğru olur","Her zaman veri setinde bırakmak doğru olur","Bağlamı incele; sil, dönüştür veya kırp","Ortalama ile değiştirmek her zaman yeterli","Sıfır değeri ile değiştirmek her zaman yeter"],a:2,exp:"Outlier'lar körü körüne silinmemeli veya bırakılmamalıdır. Önce bağlamı anlamak (hata mı yoksa gerçek gözlem mi) önemlidir. Duruma göre silme (drop), dönüştürme (log, sqrt), kırpma (clipping/winsorization) veya sınırlarla değiştirme yapılabilir."},
+  {t:"Outlier Analizi",q:"Winsorization (kırpma) tekniği ne işe yaramaktadır aşağıda peki?",o:["Outlier'ları belirli sınıra çekmekte kullan","Tüm veri setini silmek işleminde kullanılır","Eksik verileri doldurma yönteminde kullanı","Normalizasyon yapma yönteminde kullanılır","Kategorik veriyi sayısala çevirmede kullan"],a:0,exp:"Winsorization, uç değerleri belirli bir persentil sınırına (örn: %5 ve %95) çekerek outlier etkisini azaltır. Değerleri silmez, sınırlara 'kırpar'. Bu, veri miktarını korurken outlier etkisini azaltır. Robust bir tekniktir."},
+  {t:"Outlier Analizi",q:"Outlier'ların bir modele en belirgin olumsuz etkisi hangisidir?",o:["Modelin çok hızlı çalışmasına neden olması","Model parametrelerinin sapmasına yol açması","Modelin doğruluğunu artırmasına neden olur","Eksik verilerin çoğalmasına neden olması hep","Veri setinin küçülmesine neden olması her hep"],a:1,exp:"Outlier'lar özellikle lineer regresyon, ortalama tabanlı hesaplamalar ve k-means gibi mesafe tabanlı algoritmalarda model parametrelerini bozar. Ortalama, standart sapma ve regresyon katsayıları outlier'lardan çok etkilenir. Medyan robust bir ölçüdür."},
+
+  // ---- VERİ ÖN İŞLEME (31-40) ----
+  {t:"Veri Ön İşleme",q:"Veri ön işleme (preprocessing) yapmanın en temel amacı nedir?",o:["Veri boyutunu artırmak için tercih edilir","Ham veriyi analiz için hazır hale getirmek","Modeli olduğundan daha karmaşık hale sokmak","Veriyi anlaşılmaz hale getirmek için yapılır","Eksik verileri yapay olarak üretmek amaçlı"],a:1,exp:"Veri ön işlemenin amacı ham (raw) veriyi temizleyerek, dönüştürerek ve düzenleyerek modele uygun hale getirmektir. 'Garbage in, garbage out' prensibi gereği veri kalitesi model başarısını doğrudan etkiler. Kirli veri kötü model demektir."},
+  {t:"Veri Ön İşleme",q:"Aşağıdakilerden hangisi veri ön işleme aşamalarından biri değildir?",o:["Eksik veri doldurma işlemi tercih edilir","Outlier tespiti ve tedavisi yapma işlemi","Feature scaling (ölçekleme) tercih edilir","Model tahmininin son adımda yapılması hep","Kategorik değişken encoding'i uygulanır hep"],a:3,exp:"Model tahmini (prediction) ön işleme aşaması değil, sonrasında gelen bir adımdır. Ön işleme; veri temizleme, eksik veri doldurma, outlier tedavisi, encoding ve scaling gibi verinin modele hazırlanma sürecidir. Tahmin modelleme aşamasıdır."},
+  {t:"Veri Ön İşleme",q:"Feature Engineering (öznitelik mühendisliği) ne anlama gelmektedir?",o:["Var olan verilerden yeni özellik türetmek","Modeli olduğundan basit hale getirme işlemi","Sadece kategorik veriyi silme işlemi her hep","Verinin boyutunu küçültme işlemi her zaman","Modeli eğitmek için kullanılan araç seti hep"],a:0,exp:"Feature Engineering, mevcut verilerden yeni ve anlamlı özellikler türetme sürecidir. Örneğin doğum tarihinden yaş hesaplamak, tarihten gün/ay/yıl ayırmak, iki sütunun oranını almak. Model performansını önemli ölçüde artırabilir."},
+  {t:"Veri Ön İşleme",q:"Veri temizleme (data cleaning) sürecinde en sık yapılan işlem?",o:["Verinin şifrelenmesi işlemi tercih edilir","Duplicate (tekrarlı) kayıtları silme işlemi","Modelin eğitilmesi bu adımda yapılır her hep","Veri görselleştirme grafikler çizme işlemi","Hyperparameter tuning işlemi tercih edilir"],a:1,exp:"Veri temizleme sürecinde duplicate (tekrarlı) kayıtların silinmesi, eksik değerlerin işlenmesi, hatalı verilerin düzeltilmesi, tutarsızlıkların giderilmesi yapılır. Pandas'ta drop_duplicates() metodu ile kolayca yapılır."},
+  {t:"Veri Ön İşleme",q:"Aynı özelliği farklı ölçeklerde ifade eden sütunlar için ne yapılır?",o:["Standardizasyon veya normalizasyon uygulan","One-hot encoding tekniği tercih edilmektedir","Label encoding tekniği tercih edilmektedir","Sadece silme işlemi tercih edilmektedir her","Veriler olduğu gibi bırakılmaktadır her hep"],a:0,exp:"Farklı ölçekteki sütunlar (örn: yaş 0-100, gelir 0-100000) mesafe tabanlı ve gradyan tabanlı algoritmaları bozar. Standardizasyon (Z-score) veya normalizasyon (Min-Max) ile aynı ölçeğe getirilir. Ağaç tabanlı modeller etkilenmez."},
+  {t:"Veri Ön İşleme",q:"Aşağıdakilerden hangisi kesinlikle veri ön işleme adımıdır peki?",o:["Confusion matrix hesaplama işlemi her zaman","Feature scaling ölçekleme işlemi her zaman","ROC eğrisi çizme işlemi her zaman tercih","Cross validation ile doğrulama her zaman","Grid search hiperparametre tarama her zaman"],a:1,exp:"Feature scaling (ölçekleme) klasik bir veri ön işleme adımıdır. Confusion matrix, ROC, cross-validation ve grid search model değerlendirme veya hiperparametre optimizasyonu aşamalarındadır. Sırayla: ön işleme → eğitim → değerlendirme."},
+  {t:"Veri Ön İşleme",q:"Kategorik değişkenlerin işlenmesinde ilk adım aşağıdakilerden hangisi?",o:["Encoding (kodlama) doğrudan uygulanmalıdır","Değişkenin nominal mi ordinal mi belirlemek","Değişkeni tamamen silmek her zaman iyi olur","Normalizasyon uygulamak her zaman gereklidir","Standartlaştırma ile başlamak her zaman iyi"],a:1,exp:"Kategorik değişkenin nominal (sırasız) mı yoksa ordinal (sıralı) mı olduğunu belirlemek encoding stratejisini belirler. Nominal için one-hot encoding, ordinal için label encoding uygundur. Yanlış encoding modele yanlış bilgi verir."},
+  {t:"Veri Ön İşleme",q:"Veri setinde tarih (date) sütunu için hangi işlem yapılabilir?",o:["Direkt olarak modele veriye verilmelidir hep","Yıl, ay, gün olarak ayrıştırma yapılmalıdır","One-hot encoding tekniğini uygulamak gerekir","Doğrudan normalize edilerek verilmelidir hep","Z-score dönüşümü tercih edilmelidir her hep"],a:1,exp:"Tarih sütunu direkt modele verilemez. Yıl, ay, gün, haftanın günü, mevsim gibi bileşenlere ayrıştırılarak sayısal özellikler türetilir. Bu, feature engineering örneğidir. Ayrıca cyclical encoding (sin/cos) da mevsimsellik için kullanılır."},
+  {t:"Veri Ön İşleme",q:"Veri sızıntısı (data leakage) nedir ve nasıl önlenir aşağıda peki?",o:["Test verisinin eğitimde kullanılma durumu","Sadece eğitim verisini kullanma durumu her","Verinin tümünü test etmek doğrudur her hep","Modeli hiç doğrulamamak iyi olur her zaman","Rastgele veri seçimi yapmak lazımdır her hep"],a:0,exp:"Data leakage, modelin test verisinden veya gelecekteki bilgiden faydalanmasıdır. Örneğin scaling'in tüm veriye uygulanması. Önleme: train-test split önce yapılır, scaling/imputation sadece train'e fit edilir, test'e transform uygulanır. Pipeline kullanmak güvenlidir."},
+  {t:"Veri Ön İşleme",q:"Pipeline (boru hattı) kullanmanın en önemli avantajı nedir?",o:["Sadece kod satırlarını azaltmak için gerekli","Ön işleme adımlarını otomatize etme özelliği","Modeli daha yavaş çalıştırma için gereklidir","Veri boyutunu artırma amacıyla kullanılır hep","Modelin doğruluğunu azaltmak için gerekli hep"],a:1,exp:"Pipeline, ön işleme ve modelleme adımlarını tek bir yapıda birleştirir. Bu sayede: kod tekrarı azalır, data leakage önlenir, cross-validation güvenli olur, üretime alma kolaylaşır. Sklearn Pipeline sınıfı sık kullanılır."},
+
+  // ---- Z-SCORE (41-50) ----
+  {t:"Z-Score",q:"Z-score formülü aşağıdakilerden hangisidir doğru olarak verilir?",o:["Z = (x - min) / (max - min) formülü hep","Z = (x - μ) / σ formülü kullanılır her hep","Z = (x + μ) / σ formülü kullanılır her hep","Z = x * σ + μ formülü kullanılır her zaman","Z = (x - μ) * σ formülü kullanılır her hep"],a:1,exp:"Z-score = (x - μ) / σ formülü ile hesaplanır. Burada x değer, μ ortalama, σ ise standart sapmadır. Değeri ortalamadan kaç standart sapma uzakta olduğunu gösterir. Standartlaştırma (standardization) olarak da bilinir."},
+  {t:"Z-Score",q:"Z-score dönüşümü sonrası verinin ortalaması ne olur aşağıda?",o:["Ortalama değeri 1 olarak çıkmaktadır her hep","Ortalama değeri 0 olarak çıkmaktadır her hep","Ortalama değeri değişmez sabit kalır her hep","Ortalama değeri -1 olarak çıkmaktadır her hep","Ortalama değer belirsizdir bilinmez her zaman"],a:1,exp:"Z-score dönüşümünden sonra verinin ortalaması 0, standart sapması 1 olur. Buna 'standart normal dağılıma' dönüştürme denir. Farklı ölçeklerdeki değişkenleri karşılaştırılabilir hale getirir. Mean=0, Std=1 olacak şekilde ölçeklenir."},
+  {t:"Z-Score",q:"Z-score dönüşümü sonrası verinin standart sapması ne olur peki?",o:["Standart sapma değeri 0 olur her zaman hep","Standart sapma değeri 1 olur her zaman hep","Standart sapma değeri 2 olur her zaman hep","Standart sapma değeri değişmez her zaman hep","Standart sapma belirsiz olur her zaman hep"],a:1,exp:"Z-score standartlaştırması sonrası standart sapma 1 olur. Bu, verinin standart normal dağılıma (N(0,1)) benzer hale getirildiği anlamına gelir. Ortalama=0 ve Standart Sapma=1 standart normal dağılımın karakteristiğidir."},
+  {t:"Z-Score",q:"Z-score değeri +2 olan bir gözlem ne anlama gelmektedir?",o:["Gözlem ortalamadan 2 sapma uzakta yukarıda","Gözlem ortalamaya çok yakın konumdadır her","Gözlem outlier değildir kesinlikle her zaman","Gözlem medyan değerin altında bulunmaktadır","Gözlem varyans değerine eşittir her zaman hep"],a:0,exp:"Z-score +2, gözlemin ortalamadan 2 standart sapma yukarıda olduğunu gösterir. Normal dağılımda değerlerin yaklaşık %95'i ±2 sapma arasında yer alır. |Z|>3 olduğunda genellikle outlier olarak değerlendirilir."},
+  {t:"Z-Score",q:"Sklearn'de Z-score standartlaştırma için hangi sınıf kullanılır?",o:["MinMaxScaler sınıfı kullanılır her zaman hep","StandardScaler sınıfı kullanılır her zaman","RobustScaler sınıfı kullanılır her zaman hep","MaxAbsScaler sınıfı kullanılır her zaman hep","Normalizer sınıfı kullanılır her zaman kesin"],a:1,exp:"Sklearn'de StandardScaler sınıfı Z-score standartlaştırma yapar. fit() ile ortalama ve std hesaplanır, transform() ile dönüşüm uygulanır. MinMaxScaler [0,1] aralığına ölçekler, RobustScaler outlier'a dirençlidir, medyan/IQR kullanır."},
+  {t:"Z-Score",q:"Z-score standartlaştırmasının en büyük dezavantajı nedir aşağıda?",o:["Outlier değerlerden çok etkilenmesi durumu","Sadece kategorik veride kullanılabilmesi her","Veri boyutunu azaltmasıdır her zaman kesin","Modeli daha karmaşık yapmasıdır her zaman","Hesaplanmasının çok zor olması her zaman hep"],a:0,exp:"Z-score, ortalama ve standart sapma kullandığı için outlier'lara duyarlıdır. Outlier'lar ortalama ve std'yi bozar, dönüşüm yanlış ölçeklenir. Bu durumda RobustScaler (medyan ve IQR tabanlı) daha güvenilir bir alternatiftir."},
+  {t:"Z-Score",q:"Z-score dönüşümü hangi durumlarda daha uygun kullanılmaktadır?",o:["Veri normal dağılıma yakın olduğu zamanlarda","Sadece kategorik veri olduğu zaman her zaman","Veri sadece 0-1 arasında olduğu zaman kesin","Eksik veri fazla olduğu zamanlarda her zaman","Outlier çok fazla olduğu zamanlarda her zaman"],a:0,exp:"Z-score dönüşümü, veri normal dağılıma yakınsa ve outlier az ise iyi çalışır. Normal dağılmayan veriler veya çok outlier varsa MinMaxScaler veya RobustScaler daha uygun olabilir. Lineer regresyon, PCA, K-means için önerilir."},
+  {t:"Z-Score",q:"Standardizasyon ile normalizasyon arasındaki temel fark nedir?",o:["İkisi tamamen aynı işlemdir her zaman kesin","Standardizasyon 0-1 arası dönüşüm yapar her","Standardizasyon Z-score, norm Min-Max yapar","Normalizasyon sadece kategorik için tercih","Standardizasyon eksik veri doldurma amaçlı"],a:2,exp:"Standardizasyon Z-score ile ortalama=0, std=1 yapar. Normalizasyon (Min-Max) veriyi [0,1] veya [-1,1] aralığına ölçekler. Standardizasyonun sınırı yoktur, normalizasyonun sınırı vardır. Amaçları farklıdır."},
+  {t:"Z-Score",q:"Z-score'un negatif çıkması ne anlama gelmektedir aşağıda peki?",o:["Değer ortalamanın altında konumlanmıştır","Değer ortalamanın üstünde konumlanmıştır","Değer ortalamaya eşittir kesinlikle her hep","Değer bir outlier'dır kesinlikle her zaman","Değer eksik veridir bilinmemektedir her hep"],a:0,exp:"Negatif Z-score, gözlemin ortalamanın altında olduğunu gösterir. Pozitif Z-score ortalamanın üzerinde, sıfır ise ortalamaya eşit olduğunu belirtir. Değerin büyüklüğü, ortalamadan uzaklığı verir."},
+  {t:"Z-Score",q:"Z-score dönüşümünün en yaygın uygulama alanı hangisidir peki?",o:["Karar ağacı algoritmaları için tercih edilir","Random Forest için gereklidir her zaman kesin","Lineer modeller ve k-means için gerekli olur","XGBoost için gereklidir kesinlikle her zaman","LightGBM için gereklidir her zaman kesinlikle"],a:2,exp:"Z-score özellikle lineer regresyon, lojistik regresyon, SVM, PCA, K-means gibi mesafe/gradyan tabanlı algoritmalarda gereklidir. Ağaç tabanlı modeller (Decision Tree, Random Forest, XGBoost, LightGBM) ölçeklemeye ihtiyaç duymaz çünkü split noktalarına bakarlar."},
+
+  // ---- NORMALİZASYON (51-58) ----
+  {t:"Normalizasyon",q:"Min-Max normalizasyon formülü aşağıdakilerden hangisidir peki?",o:["X' = (x - min) / (max - min) formülü hep","X' = (x - μ) / σ formülü kullanılır her hep","X' = x / max formülü kullanılır her zaman","X' = x - min formülü kullanılır her zaman","X' = (x + min) / max formülü her zaman kul"],a:0,exp:"Min-Max normalizasyon formülü: X' = (x - min) / (max - min). Bu formül veriyi [0,1] aralığına ölçekler. En küçük değer 0'a, en büyük değer 1'e dönüşür. Sklearn'de MinMaxScaler sınıfı bu işlemi yapar."},
+  {t:"Normalizasyon",q:"Min-Max normalizasyon sonrası veri hangi aralıkta olur aşağıda?",o:["Aralık [0, 1] arasında olur her zaman kesin","Aralık [-1, 1] arasında olur her zaman kesin","Aralık [0, 100] arasında olur her zaman kesin","Aralık ortalama etrafında olur her zaman kesin","Aralık sınırsızdır belirsiz olur her zaman hep"],a:0,exp:"Min-Max normalizasyon veriyi varsayılan olarak [0, 1] aralığına dönüştürür. Sklearn MinMaxScaler'da feature_range parametresi ile başka aralıklar da (örn: [-1, 1]) belirlenebilir. Görüntü işleme ve sinir ağlarında yaygındır."},
+  {t:"Normalizasyon",q:"Min-Max normalizasyonun en büyük dezavantajı hangisidir peki?",o:["Outlier değerlerden çok etkilenmesi durumu","Sadece kategorik veride kullanılabilmesi her","Uygulanmasının çok zor olması her zaman kes","Modeli daha karmaşık yapmasıdır her zaman","Hızlı bir işlem olmamasıdır kesinlikle her"],a:0,exp:"Min-Max normalizasyon, min ve max değerlere dayandığı için outlier'a çok duyarlıdır. Tek bir outlier tüm ölçeği bozar. Bu durumda RobustScaler (medyan/IQR tabanlı) veya outlier tedavisi sonrası normalizasyon daha güvenlidir."},
+  {t:"Normalizasyon",q:"Sinir ağlarında normalizasyon niçin özellikle önemli olmaktadır?",o:["Gradient descent daha hızlı yakınsamaktadır","Modeli daha yavaş çalıştırmak için gerekli","Katman sayısını azaltmak için gerekli olur","Aktivasyon fonksiyonlarını değiştirir her","Veri boyutunu küçültmek için gerekli olur"],a:0,exp:"Sinir ağlarında farklı ölçekli özellikler gradient descent'in yakınsamasını yavaşlatır ve zigzag çizmesine neden olur. Normalize edilmiş veri ile ağırlık güncellemeleri daha dengeli olur ve model daha hızlı öğrenir. Sigmoid/tanh aktivasyonlarıyla özellikle önemlidir."},
+  {t:"Normalizasyon",q:"Normalizasyon hangi algoritma için mutlaka gerekli değildir peki?",o:["K-Nearest Neighbors (KNN) algoritması gerek","Support Vector Machine (SVM) algoritması hep","Karar ağacı (Decision Tree) algoritması her","K-Means kümeleme algoritması her zaman kesin","Yapay sinir ağları eğitiminde her zaman kes"],a:2,exp:"Karar ağaçları (Decision Tree, Random Forest, XGBoost) özellik değerlerini split noktalarına göre böler; ölçeğe bağımlı değildirler. KNN, SVM, K-Means (mesafe tabanlı) ve sinir ağları (gradyan tabanlı) için ölçekleme mutlaka gereklidir."},
+  {t:"Normalizasyon",q:"MaxAbsScaler ile MinMaxScaler arasındaki temel fark nedir peki?",o:["MaxAbsScaler negatif değerin işaretini korur","MinMaxScaler outlier'a daha dayanıklıdır hep","İkisi tamamen aynı işleve sahiptir her zaman","MaxAbsScaler sadece kategorik için kullanılı","MinMaxScaler sadece negatif değer için tercih"],a:0,exp:"MaxAbsScaler değerleri [-1, 1] aralığına, mutlak maksimum değere bölerek ölçekler. Negatif ve pozitif işaretleri korur. Sparse (seyrek) veri için idealdir çünkü sıfırı korur. MinMaxScaler ise [0,1] aralığına ölçekler."},
+  {t:"Normalizasyon",q:"RobustScaler ne için tercih edilir kullanılmaktadır aşağıda peki?",o:["Outlier'lara karşı dayanıklı olması için hep","Sadece kategorik veri için kullanılabilmesi","Veri boyutunu artırmak için tercih edilmekte","Modeli karmaşıklaştırmak için tercih edilmek","Eksik veri doldurmak amacıyla tercih edilir"],a:0,exp:"RobustScaler, medyan ve IQR (çeyrekler açıklığı) kullanarak ölçekleme yapar. Ortalama ve standart sapma kullanmadığı için outlier'lardan etkilenmez. Outlier'lı veri setlerinde StandardScaler'a alternatiftir. Formül: (x - medyan) / IQR."},
+  {t:"Normalizasyon",q:"Normalizasyonun train-test split ile doğru kullanımı nasıl olmalı?",o:["Tüm veriye önce uygula sonra ayır her zaman","Önce ayır sonra sadece train'e fit et her hep","Sadece test verisine uygulanır her zaman hep","Hiç normalizasyon yapılmamalıdır her zaman","Sadece hedef değişkene uygulanır her zaman"],a:1,exp:"Doğru sıra: 1) Train-test split yap. 2) Scaler'ı SADECE train verisine fit et. 3) Hem train hem test'e transform uygula. Tüm veriye fit yapmak data leakage yaratır çünkü test verisinin dağılımı eğitime sızar. Pipeline bunu otomatikleştirir."},
+
+  // ---- ONE-HOT ENCODING (59-64) ----
+  {t:"One-Hot Encoding",q:"One-hot encoding nedir ve nasıl çalışmaktadır aşağıda peki?",o:["Her kategoriyi ayrı sütuna dönüştürme işlemi","Kategorileri sayısal sıralamaya çevirme işlemi","Kategorileri silmek amacıyla kullanılan işlem","Eksik verileri doldurma yöntemi her zaman hep","Outlier tespit etme yöntemi her zaman kesin"],a:0,exp:"One-hot encoding, her kategoriyi ayrı bir binary (0/1) sütuna dönüştürür. Örneğin 'Renk' sütunu [Kırmızı, Mavi, Yeşil] varsa 3 yeni sütun oluşur ve her satırda ilgili sütunda 1, diğerlerinde 0 olur. Nominal kategorik veriler için idealdir."},
+  {t:"One-Hot Encoding",q:"One-hot encoding en çok hangi veri türü için tercih edilir?",o:["Nominal (sırasız) kategorik veri için tercih","Ordinal (sıralı) kategorik veri için tercih","Sürekli sayısal veri her zaman tercih edilir","Zaman serisi verileri her zaman tercih edilir","Metin verileri her zaman tercih edilmektedir"],a:0,exp:"One-hot encoding, kategoriler arasında doğal sıralama olmayan nominal veriler için idealdir (renk, şehir, marka). Ordinal veriler için label encoding daha uygundur çünkü sıralamayı korur. One-hot'ta modele yanlış sıralama bilgisi verilmez."},
+  {t:"One-Hot Encoding",q:"One-hot encoding'in en büyük dezavantajı hangisidir peki aşağıda?",o:["Boyutluluk sorunu ve seyrek matris oluşturur","Sadece sayısal verilere uygulanır her zaman","Sıralamayı korumaz kategoriler arasında hep","Modeli hızlandırır her zaman kesinlikle hep","Eksik veri oluşturur her zaman kesinlikle hep"],a:0,exp:"One-hot encoding'in en büyük dezavantajı yüksek kardinaliteli (çok kategorili) sütunlarda boyut patlamasına neden olmasıdır. 100 kategorili bir sütun 100 yeni sütun yaratır. Bu 'curse of dimensionality' sorununa yol açar ve sparse matris oluşturur."},
+  {t:"One-Hot Encoding",q:"Dummy variable trap (kukla değişken tuzağı) nasıl önlenir aşağıda?",o:["Bir kategoriyi baz alıp silmek gereklidir hep","Tüm kategorileri sütun yapmak gereklidir hep","Sadece bir kategori bırakmak gereklidir her","Hiç encoding yapmamak gereklidir her zaman","Label encoding yapmak gereklidir her zaman"],a:0,exp:"One-hot encoding'de N kategoriden N-1 sütun oluşturulmalıdır. Aksi halde sütunlar arasında mükemmel doğrusal ilişki (multicollinearity) oluşur. Pandas'ta drop_first=True veya sklearn'de drop='first' parametresi bunu sağlar. Özellikle lineer modeller için önemlidir."},
+  {t:"One-Hot Encoding",q:"Pandas'ta one-hot encoding yapmak için hangi fonksiyon kullanılır?",o:["pd.get_dummies() fonksiyonu kullanılır her","pd.factorize() fonksiyonu kullanılır her hep","pd.cut() fonksiyonu kullanılır her zaman hep","pd.qcut() fonksiyonu kullanılır her zaman hep","pd.melt() fonksiyonu kullanılır her zaman hep"],a:0,exp:"Pandas'ta pd.get_dummies() fonksiyonu one-hot encoding uygular. Örnek: pd.get_dummies(df, columns=['Renk'], drop_first=True). Sklearn'de ise OneHotEncoder sınıfı kullanılır ve pipeline'lara daha uygundur. Her ikisi de aynı sonucu üretir."},
+  {t:"One-Hot Encoding",q:"One-hot encoding sonrası yeni oluşan sütunların değerleri nedir?",o:["Sadece 0 ve 1 değerlerini almaktadırlar hep","Sürekli sayısal değerler almaktadırlar hep","Sıralı tam sayı değerler almaktadırlar hep","Rastgele ondalık değerler almaktadırlar hep","Negatif ve pozitif değerler almaktadırlar"],a:0,exp:"One-hot encoded sütunlar sadece 0 ve 1 (binary) değerleri alır. 1, gözlemin o kategoriye ait olduğunu; 0 ise ait olmadığını gösterir. Her satırda sadece bir sütunda 1 bulunur (diğerleri 0). Buna 'one-hot' denmesinin sebebi budur."},
+
+  // ---- LABEL ENCODING (65-70) ----
+  {t:"Label Encoding",q:"Label encoding nedir ve nasıl çalışır aşağıdaki gibi anlatılır?",o:["Her kategoriyi bir sayıya dönüştürme işlemi","Her kategoriyi ayrı sütuna bölme işlemi hep","Eksik verileri doldurma yöntemi her zaman hep","Outlier tespit etme yöntemi her zaman kesin","Normalizasyon tekniği türüdür her zaman kes"],a:0,exp:"Label encoding, her kategoriye tamsayı bir değer atar. Örneğin ['Kırmızı', 'Mavi', 'Yeşil'] → [0, 1, 2] olur. Tek sütun yaratır, boyutluluk sorunu yoktur. Ancak kategoriler arasında sıralama olduğu izlenimi verir; bu nedenle ordinal veri için uygundur."},
+  {t:"Label Encoding",q:"Label encoding hangi veri türü için ideal seçim olmaktadır?",o:["Ordinal (sıralı) kategorik veri için tercih","Nominal (sırasız) kategorik veri için tercih","Sürekli sayısal veri her zaman tercih edilir","Metin verisi olduğunda her zaman tercih edil","Zaman serisi verisi olduğunda her zaman ter"],a:0,exp:"Label encoding, kategoriler arasında doğal sıralama olan ordinal veriler için idealdir (eğitim seviyesi, beden, memnuniyet). Nominal veride kullanıldığında yapay sıralama oluşturur ve modeli yanıltır. Nominal için one-hot tercih edilmelidir."},
+  {t:"Label Encoding",q:"Label encoding'in en büyük dezavantajı hangisidir aşağıda peki?",o:["Yapay sıralama ilişkisi oluşturması durumu","Boyutluluk sorununa neden olması her zaman","Modeli hızlandırması her zaman kesinlikle hep","Kategorik veriyi silmesi her zaman kesinlik","Eksik veri oluşturması her zaman kesinlikle"],a:0,exp:"Label encoding'in en büyük dezavantajı nominal (sırasız) verilerde yapay bir sıralama oluşturmasıdır. Kırmızı=0, Mavi=1, Yeşil=2 dendiğinde model 'Yeşil > Mavi > Kırmızı' gibi yanlış bir ilişki öğrenir. Ağaç modelleri bundan daha az etkilenir."},
+  {t:"Label Encoding",q:"Sklearn'de label encoding için hangi sınıf kullanılmaktadır peki?",o:["LabelEncoder sınıfı kullanılır her zaman hep","OneHotEncoder sınıfı kullanılır her zaman hep","StandardScaler sınıfı kullanılır her zaman","MinMaxScaler sınıfı kullanılır her zaman hep","SimpleImputer sınıfı kullanılır her zaman hep"],a:0,exp:"Sklearn'de LabelEncoder sınıfı label encoding yapar. from sklearn.preprocessing import LabelEncoder. Ancak LabelEncoder tek sütun için tasarlanmıştır ve genelde hedef değişkende (y) kullanılır. Özellikler için OrdinalEncoder daha uygundur."},
+  {t:"Label Encoding",q:"Label encoding ile one-hot encoding arasındaki temel fark nedir?",o:["Label tek sütun, one-hot çok sütun oluştur","Label çok sütun, one-hot tek sütun oluştur","İkisi tamamen aynı sonuç üretmektedir her","Label sadece sayısal veri için uygulanır hep","One-hot sadece ordinal veri için uygulanır"],a:0,exp:"Label encoding tek sütuna sayısal değerler atar (kompakt, sıralama korunur). One-hot encoding her kategori için ayrı sütun yaratır (boyut artar, sıralama yok). Label ordinal için, One-hot nominal için idealdir."},
+  {t:"Label Encoding",q:"Ordinal Encoder ile Label Encoder arasındaki temel fark nedir peki?",o:["Ordinal çoklu sütun, Label tek sütun destek","Ordinal sıralama manuel belirlenebilir her","İkisi tamamen aynı işleve sahiptir her zaman","Ordinal sadece sayısal veri işler her zaman","Label her zaman daha hızlıdır her zaman kes"],a:1,exp:"OrdinalEncoder'da 'categories' parametresi ile sıralama manuel belirlenebilir (Düşük<Orta<Yüksek gibi). LabelEncoder alfabetik sıralar. OrdinalEncoder çoklu sütun destekler ve özellikler için, LabelEncoder tek sütun ve hedef için idealdir."},
+
+  // ---- TRAIN-TEST SPLIT (71-75) ----
+  {t:"Train-Test Split",q:"Train-test split yapmanın en temel amacı nedir aşağıda peki?",o:["Modeli daha karmaşık hale getirmek için hep","Modelin genelleme başarısını ölçmek için hep","Veri boyutunu azaltma amacıyla tercih edilir","Eksik verileri doldurmak amacıyla tercih hep","Outlier'ları tespit etme amacıyla tercih hep"],a:1,exp:"Train-test split, modelin daha önce görmediği veri üzerindeki (test seti) performansını (genelleme yeteneği) ölçmek için yapılır. Aynı veriyle hem eğitip hem test etmek overfitting'in fark edilmesini engeller. Genelleme başarısı gerçek dünya performansını gösterir."},
+  {t:"Train-Test Split",q:"Genellikle veri ne oranda train ve test setine ayrılmaktadır?",o:["%50 train ve %50 test olarak ayrılır her hep","%80 train ve %20 test olarak ayrılır her hep","%10 train ve %90 test olarak ayrılır her hep","%100 train ve %0 test olarak ayrılır her hep","%30 train ve %70 test olarak ayrılır her hep"],a:1,exp:"Klasik train-test oranı %80-%20 veya %70-%30'dur. Yeterli veri varsa %80 train (öğrenme için) ve %20 test (değerlendirme için) yeterlidir. Çok büyük veri setlerinde test seti oranı düşürülebilir. Küçük veri setlerinde cross-validation önerilir."},
+  {t:"Train-Test Split",q:"Sklearn'de train-test split için hangi fonksiyon kullanılmaktadır?",o:["train_test_split() fonksiyonu kullanılır hep","cross_val_score() fonksiyonu kullanılır hep","StratifiedKFold() fonksiyonu kullanılır hep","GridSearchCV() fonksiyonu kullanılır her hep","cross_validate() fonksiyonu kullanılır her"],a:0,exp:"sklearn.model_selection.train_test_split() fonksiyonu veriyi ayırır. Parametreler: test_size (oran), random_state (tekrarlanabilirlik), stratify (sınıf dengesi). Örnek: X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)."},
+  {t:"Train-Test Split",q:"random_state parametresinin işlevi nedir train-test split'te?",o:["Tekrarlanabilir sonuçlar sağlamak için tercih","Modeli hızlandırma amacıyla kullanılır her","Veri boyutunu artırma amacıyla kullanılır her","Eksik veri doldurmak amacıyla kullanılır her","Outlier tespit etme amacıyla kullanılır her"],a:0,exp:"random_state parametresi rastgele sayı üretecinin başlangıç noktasını (seed) belirler. Aynı random_state ile her çalıştırmada aynı bölünme elde edilir. Bu, sonuçların tekrarlanabilir olmasını sağlar. Genelde 42 gibi sabit bir değer verilir."},
+  {t:"Train-Test Split",q:"Stratified split yapmak ne zaman özellikle önemli olmaktadır peki?",o:["Sınıf dağılımı dengesiz olduğu zaman gerekli","Sınıf dağılımı çok dengeli olduğu zaman ger","Sadece regresyon problemlerinde tercih edil","Sadece küçük veri setlerinde tercih edilmekte","Sadece sayısal verilerde tercih edilmektedir"],a:0,exp:"Stratified split, hedef değişkenin sınıf oranını hem train hem test setinde korur. Dengesiz sınıflarda (örn: %95 negatif, %5 pozitif) rastgele split yaparsa test seti hiç pozitif içermeyebilir. stratify=y parametresi ile yapılır ve sınıflandırma problemleri için önerilir."}
+];
+
+// ============ QUIZ MOTORU ============
+let currentQ = 0;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let score = 0;
+
+function startQuiz() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+
+  document.getElementById('q-num').textContent = String(currentQ + 1).padStart(2, '0');
+  document.getElementById('q-topic').textContent = q.t;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('stat-current').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  document.getElementById('stat-correct').textContent = score;
+
+  // Progress bar
+  const answered = userAnswers.filter(a => a !== null).length;
+  document.getElementById('progress').style.width = `${(answered / QUESTIONS.length) * 100}%`;
+
+  // Options
+  const optsContainer = document.getElementById('options');
+  optsContainer.innerHTML = '';
+
+  q.o.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[idx]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(idx);
+    btn.disabled = userAnswers[currentQ] !== null;
+    optsContainer.appendChild(btn);
+  });
+
+  // Show previous answer if exists
+  const explanation = document.getElementById('explanation');
+  if (userAnswers[currentQ] !== null) {
+    showAnswer(userAnswers[currentQ]);
+    explanation.classList.add('show');
+    document.getElementById('exp-text').textContent = q.exp;
+  } else {
+    explanation.classList.remove('show');
+  }
+
+  // Nav buttons
+  document.getElementById('prev-btn').disabled = currentQ === 0;
+  const nextBtn = document.getElementById('next-btn');
+  if (currentQ === QUESTIONS.length - 1) {
+    nextBtn.textContent = 'Sonuçları Gör ✓';
+  } else {
+    nextBtn.textContent = 'Sonraki →';
+  }
+  nextBtn.disabled = userAnswers[currentQ] === null;
+}
+
+function selectAnswer(idx) {
+  if (userAnswers[currentQ] !== null) return;
+
+  const q = QUESTIONS[currentQ];
+  userAnswers[currentQ] = idx;
+
+  if (idx === q.a) {
+    score++;
+  }
+
+  showAnswer(idx);
+
+  const explanation = document.getElementById('explanation');
+  explanation.classList.add('show');
+  document.getElementById('exp-text').textContent = q.exp;
+
+  document.getElementById('stat-correct').textContent = score;
+  document.getElementById('next-btn').disabled = false;
+
+  const answered = userAnswers.filter(a => a !== null).length;
+  document.getElementById('progress').style.width = `${(answered / QUESTIONS.length) * 100}%`;
+}
+
+function showAnswer(selectedIdx) {
+  const q = QUESTIONS[currentQ];
+  const buttons = document.querySelectorAll('.option');
+
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.a) {
+      btn.classList.add('correct');
+    } else if (idx === selectedIdx && idx !== q.a) {
+      btn.classList.add('wrong');
+    }
+  });
+}
+
+function nextQ() {
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showFinal();
+  }
+}
+
+function prevQ() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showFinal() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('final-screen').style.display = 'block';
+
+  document.getElementById('final-score').textContent = score;
+  const percent = ((score / QUESTIONS.length) * 100).toFixed(1);
+  document.getElementById('final-percent').textContent = `Başarı oranı: %${percent}`;
+
+  let msg = '';
+  if (percent >= 90) msg = "Mükemmel! Konulara üstün seviyede hakimsin. Bu, çok sağlam bir temel demektir.";
+  else if (percent >= 75) msg = "Çok iyi bir performans. Birkaç konuyu tekrar gözden geçirirsen tam olacak.";
+  else if (percent >= 60) msg = "İyi bir başlangıç. Yanlışları tekrar edip zayıf konulara yoğunlaşmak faydalı olacak.";
+  else if (percent >= 40) msg = "Temel kavramları tekrar etmen faydalı olacak. Not defterine geri dön ve yavaş yavaş çalış.";
+  else msg = "Bu bir çalışma fırsatı. Ders notlarına dön, konuları tekrar oku ve yeniden dene.";
+
+  document.getElementById('final-message').textContent = msg;
+
+  // Topic breakdown
+  const topics = {};
+  QUESTIONS.forEach((q, idx) => {
+    if (!topics[q.t]) topics[q.t] = { total: 0, correct: 0 };
+    topics[q.t].total++;
+    if (userAnswers[idx] === q.a) topics[q.t].correct++;
+  });
+
+  const breakdown = document.getElementById('topic-breakdown');
+  breakdown.innerHTML = '';
+  Object.entries(topics).forEach(([name, stats]) => {
+    const row = document.createElement('div');
+    row.className = 'topic-row';
+    row.innerHTML = `
+      <span class="topic-row-name">${name}</span>
+      <span class="topic-row-score">${stats.correct} / ${stats.total}</span>
+    `;
+    breakdown.appendChild(row);
+  });
+}
+
+function restart() {
+  currentQ = 0;
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  score = 0;
+  document.getElementById('final-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'block';
+}
+</script>
+</body>
+</html>
